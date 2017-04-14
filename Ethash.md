@@ -83,11 +83,11 @@ def mkcache(cache_size, seed):
 
 [Sergio2014]: http://www.hashcash.org/papers/memohash.pdf
 
-The cache production process involves first sequentially filling up 32 MB of memory, then performing two passes of Sergio Demian Lerner's *RandMemoHash* algorithm from [*Strict Memory Hard Hashing Functions* (2014)](http://www.hashcash.org/papers/memohash.pdf). The output is a set of 524288 64-byte values.
+Процесс создания кеша включает сначала последовательное заполнение 32 МБ памяти, а затем выполнение двух прогонов алгоритма Sergio Demian Lerner's *RandMemoHash* из [*Strict Memory Hard Hashing Functions* (2014)](http://www.hashcash.org/papers/memohash.pdf). Вывод представляет собой набор из 524288 64-байтных значений.
 
-### Data aggregation function
+### Функция агрегирования данных
 
-We use an algorithm inspired by the [FNV hash](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function) in some cases as a non-associative substitute for XOR. Note that we multiply the prime with the full 32-bit input, in contrast with the FNV-1 spec which multiplies the prime with one byte (octet) in turn.
+В некоторых случаях мы используем алгоритм, основанный на хэш-функции [FNV] (https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function), в качестве неассоциативной замены для XOR. Обратите внимание, что мы умножаем простое число с полным 32-битным вводом, в отличие от спецификации FNV-1, которая по очереди умножает штрих-код на один байт (октет).
 
 ```python
 FNV_PRIME = 0x01000193
@@ -96,7 +96,7 @@ def fnv(v1, v2):
     return (v1 * FNV_PRIME ^ v2) % 2**32
 ```
 
-### Full dataset calculation
+### Расчет полного набора данных
 
 Each 64-byte item in the full 1 GB dataset is computed as follows:
 
@@ -122,7 +122,7 @@ def calc_dataset(full_size, cache):
     return [calc_dataset_item(cache, i) for i in range(full_size // HASH_BYTES)]
 ```
 
-### Main Loop
+### Основной цикл
 
 Now, we specify the main "hashimoto"-like loop, where we aggregate data from the full dataset in order to produce our final value for a particular header and nonce. In the code below, `header` represents the SHA3-256 _hash_ of the RLP representation of a _truncated_ block header, that is, of a header excluding the fields **mixHash** and **nonce**. `nonce` is the eight bytes of a 64 bit unsigned integer in big-endian order. So `nonce[::-1]` is the eight-byte little-endian representation of that value:
 

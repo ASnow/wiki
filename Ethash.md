@@ -3,24 +3,24 @@ name: Ethash
 category: 
 ---
 
-**This spec is REVISION 23. Whenever you substantively (ie. not clarifications) update the algorithm, please update the revision number in this sentence. Also, in all implementations please include a spec revision number**
+** Эта спецификация REVISION 23. Всякий раз, когда вы по существу (т.е. не уточняете) обновляете алгоритм, обновите номер редакции в этом предложении. Кроме того, во всех реализациях необходимо указать номер версии спецификации**
 
-Ethash is the planned PoW algorithm for Ethereum 1.0. It is the latest version of Dagger-Hashimoto, although it can no longer appropriately be called that since many of the original features of both algorithms have been drastically changed in the last month of research and development. See [https://github.com/ethereum/wiki/wiki/Dagger-Hashimoto](https://github.com/ethereum/wiki/wiki/Dagger-Hashimoto) for the original version.
+Ethash - это планируемый алгоритм PoW для Ethereum 1.0. Это последняя версия Dagger-Hashimoto, хотя ее уже нельзя назвать так, потому что многие из оригинальных особенностей обоих алгоритмов были радикально изменены за последний месяц исследований и разработок. См. [https://github.com/ethereum/wiki/wiki/Dagger-Hashimoto](https://github.com/ethereum/wiki/wiki/Dagger-Hashimoto) для ознакомления с исходной версией.
 
-The general route that the algorithm takes is as follows:
+Общий путь выполнения алгоритма, выглядит следующим образом:
 
-1. There exists a **seed** which can be computed for each block by scanning through the block headers up until that point.
-2. From the seed, one can compute a **16 MB pseudorandom cache**. Light clients store the cache.
-3. From the cache, we can generate a **1 GB dataset**, with the property that each item in the dataset depends on only a small number of items from the cache. Full clients and miners store the dataset.  The dataset grows linearly with time.
-4. Mining involves grabbing random slices of the dataset and hashing them together. Verification can be done with low memory by using the cache to regenerate the specific pieces of the dataset that you need, so you only need to store the cache.
+1. Существует **семя**, которое может быть вычислено для каждого блока путем сканирования заголовков блоков вплоть до этой точки.
+2. Из **семени** можно вычислить псевдослучайный **кеш** 16 МБ. Light-клиенты хранят кеш.
+3. Из кеша мы можем сгенерировать **набор данных** 1 ГБ, со свойством, что каждый элемент в наборе данных зависил только от небольшого количества элементов из **кэша**. Full-клиенты и майнеры хранят **набор данных**. **Набор данных** растет линейно со временем.
+4. Добыча эфира включает в себя захват случайных фрагментов **набора данных** и хэширование их вместе. Верификация может выполняться с малой памятью, используя **кеш** для регенерации нужных частей **набора данных**, поэтому вам достаточно хранить только **кеш**.
 
-The large dataset is updated once every 30000 blocks, so the vast majority of a miner's effort will be reading the dataset, not making changes to it.
+Большой **набор данных** обновляется каждые 30000 блоков, поэтому подавляющее большинство усилий майнера будет направлено на чтение **набора данных**, а не внесение в него изменения.
 
-See [https://github.com/ethereum/wiki/wiki/Ethash-Design-Rationale](https://github.com/ethereum/wiki/wiki/Ethash-Design-Rationale) for design rationale considerations for this algorithm.
+См. [https://github.com/ethereum/wiki/wiki/Ethash-Design-Rationale](https://github.com/ethereum/wiki/wiki/Ethash-Design-Rationale) для ознакомления с обоснованием разработаного проекта алгоритма.
 
-### Definitions
+### Определения
 
-We employ the following definitions:
+Мы используем следующие определения:
 
 ```
 WORD_BYTES = 4                    # bytes in word
@@ -37,9 +37,9 @@ CACHE_ROUNDS = 3                  # number of rounds in cache production
 ACCESSES = 64                     # number of accesses in hashimoto loop
 ```
 
-### Parameters
+### Параметры
 
-The parameters for Ethash's cache and dataset depend on the block number. The cache size and dataset size both grow linearly; however, we always take the highest prime below the linearly growing threshold in order to reduce the risk of accidental regularities leading to cyclic behavior.
+Параметры для **кеша** и **набора данных** Ethash зависят от номера блока. Размер **кеша** и размер **набора данных** растут линейно; Однако мы всегда расчитываем размер как наивысшее простое число ниже линейно растущего порога, чтобы уменьшить риск случайных закономерностей, ведущих к циклическому поведению.
 
 ```python
 def get_cache_size(block_number):
@@ -57,11 +57,11 @@ def get_full_size(block_number):
     return sz
 ```
 
-Tables of dataset and cache size values are provided in the appendix.
+Таблицы значений размеров **набора данных** и **кэша** приведены в приложении.
 
-### Cache Generation
+### Генерация кеша
 
-Now, we specify the function for producing a cache:
+Теперь мы определяем функцию для создания кэша:
 
 ```python
 def mkcache(cache_size, seed):
